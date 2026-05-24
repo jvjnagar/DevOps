@@ -1,0 +1,434 @@
+Kubernetes (often abbreviated as **K8s**) is an open-source platform used to **deploy, manage, scale, and monitor containerized applications** automatically.
+
+It was originally developed by Google and is now maintained by the Cloud Native Computing Foundation.
+
+Official website: [Kubernetes](https://kubernetes.io?utm_source=chatgpt.com)
+
+---
+
+# Why Kubernetes Was Needed
+
+Suppose you have a Python/Node/C++ application running inside a Docker container.
+
+One container is easy.
+
+But in real production systems:
+
+* You may have **100+ containers**
+* Some may crash
+* Traffic may suddenly increase
+* You need load balancing
+* You need rolling updates without downtime
+* Applications may run on multiple servers
+
+Managing all this manually becomes very difficult.
+
+Kubernetes solves this problem.
+
+---
+
+# Simple Analogy
+
+Think of:
+
+* **Docker** = packs your application into a container
+* **Kubernetes** = manages thousands of containers automatically
+
+Example:
+
+| Problem                | Kubernetes Solution               |
+| ---------------------- | --------------------------------- |
+| Container crashed      | Restart it automatically          |
+| High traffic           | Create more container replicas    |
+| Server failed          | Move containers to another server |
+| New version deployment | Rolling update                    |
+| Uneven load            | Load balancing                    |
+
+---
+
+# High-Level Architecture
+
+```text
+                User Request
+                      |
+                 Service
+                      |
+          ---------------------
+          |        |         |
+        Pod1     Pod2      Pod3
+          |
+      Container(s)
+
+Pods run on Nodes
+Nodes are managed by Cluster
+```
+
+---
+
+# Core Concepts
+
+## 1. Cluster
+
+A **Kubernetes Cluster** is a group of machines.
+
+Two major parts:
+
+| Component              | Purpose             |
+| ---------------------- | ------------------- |
+| Control Plane (Master) | Manages the cluster |
+| Worker Nodes           | Run applications    |
+
+---
+
+# 2. Node
+
+A **Node** is a machine (VM or physical server) where containers run.
+
+Each node contains:
+
+* Container runtime (Docker/containerd)
+* kubelet
+* kube-proxy
+
+---
+
+# 3. Pod (Most Important Concept)
+
+A **Pod** is the smallest deployable unit in Kubernetes.
+
+A pod usually contains:
+
+* One container
+* Shared network
+* Shared storage
+
+Example:
+
+```text
+Pod
+ └── Python App Container
+```
+
+Sometimes multiple tightly coupled containers run in one pod.
+
+---
+
+# 4. Deployment
+
+A Deployment manages pods.
+
+Example:
+
+* Keep 3 replicas alive
+* Restart failed pods
+* Roll out updates gradually
+
+Example YAML:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: myapp
+
+  template:
+    metadata:
+      labels:
+        app: myapp
+
+    spec:
+      containers:
+      - name: myapp
+        image: myapp:v1
+```
+
+This creates:
+
+* 3 replicas
+* Automatic restart
+* Self-healing
+
+---
+
+# 5. Service
+
+Pods are temporary.
+
+Their IPs change frequently.
+
+A **Service** gives a stable network endpoint.
+
+```text
+Client
+   |
+Service (stable IP/DNS)
+   |
+Pods
+```
+
+Types:
+
+* ClusterIP
+* NodePort
+* LoadBalancer
+
+---
+
+# 6. Namespace
+
+Used to logically separate environments:
+
+```text
+dev
+test
+production
+```
+
+---
+
+# 7. ConfigMap & Secret
+
+## ConfigMap
+
+Stores non-sensitive configs.
+
+Example:
+
+* URLs
+* Feature flags
+
+## Secret
+
+Stores sensitive data.
+
+Example:
+
+* Passwords
+* API keys
+* Tokens
+
+---
+
+# Important Kubernetes Features
+
+## Self-Healing
+
+If container crashes:
+
+```text
+Crash → Kubernetes restarts it
+```
+
+---
+
+## Auto Scaling
+
+If CPU usage increases:
+
+```text
+3 Pods → 10 Pods automatically
+```
+
+This is done using:
+
+* HPA (Horizontal Pod Autoscaler)
+
+---
+
+## Rolling Updates
+
+Deploy new version gradually:
+
+```text
+v1 → v2
+```
+
+Without downtime.
+
+---
+
+## Load Balancing
+
+Traffic distributed automatically across pods.
+
+---
+
+# Kubernetes Workflow Example
+
+Suppose you deploy an AI inference service.
+
+## Without Kubernetes
+
+You manually:
+
+* Start containers
+* Restart failures
+* Handle scaling
+* Configure networking
+
+Very difficult.
+
+---
+
+## With Kubernetes
+
+You just declare:
+
+```yaml
+I want:
+- 5 replicas
+- image=myapp:v2
+- autoscaling enabled
+```
+
+Kubernetes handles everything.
+
+This is called:
+
+## Declarative Infrastructure
+
+You declare desired state.
+Kubernetes continuously maintains it.
+
+---
+
+# Kubernetes + Docker Relationship
+
+| Docker                | Kubernetes              |
+| --------------------- | ----------------------- |
+| Creates containers    | Orchestrates containers |
+| Runs single container | Manages clusters        |
+| Packaging tool        | Management platform     |
+
+---
+
+# Important Kubernetes Components
+
+## Control Plane Components
+
+| Component          | Role                    |
+| ------------------ | ----------------------- |
+| API Server         | Entry point             |
+| Scheduler          | Decides node placement  |
+| etcd               | Stores cluster state    |
+| Controller Manager | Maintains desired state |
+
+---
+
+## Node Components
+
+| Component         | Role                     |
+| ----------------- | ------------------------ |
+| kubelet           | Communicates with master |
+| kube-proxy        | Networking               |
+| container runtime | Runs containers          |
+
+---
+
+# Real Industry Usage
+
+Used heavily by:
+
+* Google
+* Netflix
+* Uber
+* Spotify
+* Airbnb
+
+Especially for:
+
+* Microservices
+* AI/ML deployment
+* Cloud-native apps
+* CI/CD systems
+
+---
+
+# Kubernetes in AI/ML
+
+Since you're preparing for AI/ML + DevOps roles, Kubernetes is important for:
+
+* Model serving
+* Distributed training
+* GPU scheduling
+* Autoscaling inference APIs
+* MLOps pipelines
+
+Common stack:
+
+```text
+Docker + Kubernetes + FastAPI + ML Model
+```
+
+Example:
+
+* Package model in Docker
+* Deploy on Kubernetes
+* Auto-scale based on traffic
+
+---
+
+# Common Kubernetes Commands
+
+## Create deployment
+
+```bash
+kubectl apply -f app.yaml
+```
+
+## View pods
+
+```bash
+kubectl get pods
+```
+
+## View services
+
+```bash
+kubectl get svc
+```
+
+## Logs
+
+```bash
+kubectl logs pod-name
+```
+
+---
+
+# Kubernetes vs Docker Swarm
+
+| Feature           | Kubernetes | Docker Swarm |
+| ----------------- | ---------- | ------------ |
+| Complexity        | Higher     | Simpler      |
+| Scalability       | Excellent  | Moderate     |
+| Industry adoption | Very high  | Lower        |
+| Features          | Advanced   | Basic        |
+
+---
+
+# Important Interview Questions
+
+1. Difference between Docker and Kubernetes?
+2. What is a Pod?
+3. What is a Deployment?
+4. How does auto-scaling work?
+5. What is kubelet?
+6. What happens if a node fails?
+7. Rolling update vs recreate deployment?
+8. ConfigMap vs Secret?
+9. Service types?
+10. StatefulSet vs Deployment?
+
+---
+
+# Very Short Definition
+
+> Kubernetes is a container orchestration platform that automates deployment, scaling, networking, and management of containerized applications across clusters of machines.
